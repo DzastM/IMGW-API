@@ -41,11 +41,32 @@ export class Synop {
   }
 
   async retrieveStationInfo(city: string) {
-    const cityConverted = city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const cityConverted = await this.convertCityName(city);
     const response = await this.request.get(this.baseAddress + this.oneStation + cityConverted);
     expect(response.ok()).toBeTruthy();
 
     const cityData = await response.json();
     console.log(cityData);
+
+    return cityData;
+  }
+
+  async convertCityName(city: string) : Promise<string> {
+    return city.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  async assertTemperatureRange(station: string, minTemp: string, maxTemp: string) {    
+    let stations: any[] = [];
+    if(station.match("all") !== null) {
+        stations = await this.retrieveAllStationsInfo();
+    } else {
+        stations = await this.retrieveStationInfo(station);
+    }
+    stations.forEach(city => {
+        if(!(parseInt(city.temperatura) > parseInt(minTemp) && parseInt(city.temperatura) < parseInt(maxTemp))) {
+            console.log("Check station " + city.stacja + " temperature measurements: " + city.temperatura);
+        }
+    });
+
   }
 }

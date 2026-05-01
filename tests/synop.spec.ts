@@ -16,4 +16,8 @@ test.describe("Synoptic data", () => {
   test("Retrieve data of station Kraków", async () => {
     await synop.retrieveStationInfo("Kraków");
   });
+
+  test("Verify temperature range in stations", async () => {
+    await synop.assertTemperatureRange("all", "-30", "40");
+  });
 });
